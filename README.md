@@ -13,7 +13,7 @@ It is possible via two options
  1. VPN GW in VPC + TGW to PowerVS cloud connection 
  2. GW appliance + Power VS cloud connection
  
-Option 1. 
+BB << Option 1. 
 imitations:
 Need to enable NAT-T on on-premise Gatawey because it is actual limitation of VPC VPN GW
 benefits:
@@ -28,7 +28,7 @@ Need to manage it after provisioning
 benefits:
 Full control of FW policies and routing
 
-Preffered option in our case was Option 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)
+Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)
  
 
 ![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawioV1.png)

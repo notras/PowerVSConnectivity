@@ -3,7 +3,7 @@
 
 We will realize follwing scenario described in IBM Cloud Documentation
 (https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-network-architecture-diagrams#network-reference-architecture-privateipsec)
-This is very common scenario and it can be used like general guide for connectivity with IBM Cloud via Ipsec VPN using Juniper VSRX Gateway Appliance
+This is very common scenario and it can be used like general guide for connectivity with IBM Cloud via Ipsec VPN using Juniper VSRX Gateway Appliance.
 In many situations need Private connectivity from on-Premise environment to Cloud Resources, less expensive option is VPN.
 IBM cloud have different zones like modern MZR, classic infrastructure and Power VS colo.
 From network perspective need additional actions to interconnect it from one to each other, which is possible via Transit Gateway (TGW) and via Gateway appliance deployed in Classic infrastructure. 

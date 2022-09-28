@@ -21,7 +21,7 @@ no need to manage
 HA pair out of the box
 low cost
 
-Option 2 
+<strong>Option 2</strong> 
 limitations:
 Need to order and setup GW appliance
 Need to manage it after provisioning 

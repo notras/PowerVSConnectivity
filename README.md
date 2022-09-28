@@ -13,7 +13,7 @@ It is possible via two options
  1. VPN GW in VPC + TGW to PowerVS cloud connection 
  2. GW appliance + Power VS cloud connection
  
-BB << Option 1. 
+<strong>Option 1</strong>
 imitations:
 Need to enable NAT-T on on-premise Gatawey because it is actual limitation of VPC VPN GW
 benefits:

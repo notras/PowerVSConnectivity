@@ -1,5 +1,5 @@
 # PowerVSConnectivity
-<strong>Establish connectivity on-premise to PowerVS via IBM Cloud Classic VSRX Gateway</strong>
+  <title>Establish connectivity on-premise to PowerVS via IBM Cloud Classic VSRX Gateway</title>
 
 We will realize follwing scenario described in IBM Cloud Documentation
 (https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-network-architecture-diagrams#network-reference-architecture-privateipsec)

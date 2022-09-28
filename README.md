@@ -1,6 +1,6 @@
 # PowerVSConnectivity
 Establish connectivity on-premise to PowerVS via IBM Cloud Classic VSRX Gateway
-
+https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawio.png
 
 
 

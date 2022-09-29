@@ -37,7 +37,7 @@ Preffered option in our case was Option - 2 (more flexibility in configuration, 
 Create Power VS service insrtance
 https://cloud.ibm.com/catalog/services/power-systems-virtual-server
 
-![Creating PowerVS instance]
+![Creating PowerVS instance](https://github.com/notras/PowerVSConnectivity/blob/main/powerVSinstanceceration.png)
 
 
 

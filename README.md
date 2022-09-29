@@ -14,21 +14,23 @@ It is possible via two options
  2. On-Premise GW - GW appliance + GRE via Power VS cloud connection
  
 <strong>Option 1</strong>
-imitations:
-Need to enable NAT-T on on-premise Gatawey because it is actual limitation of VPC VPN GW
-benefits:
-no need to manage
-HA pair out of the box
-low cost
+<p> imitations:</p>
+<p>Need to enable NAT-T on on-premise Gatawey because it is actual limitation of VPC VPN GW</p>
+<p>Not full control of VPN tunnel from log perspective and necessary settings </p>
+<p>benefits:</p>
+<p>no need to manage</p>
+<p>HA pair out of the box</p>
+<p>low cost</p>
 
 <strong>Option 2</strong> 
 limitations:
-Need to order and setup GW appliance
-Need to manage it after provisioning 
-benefits:
-Full control of FW policies and routing
+<p>Need to order and setup GW appliance</p>
+<p>Need to manage it after provisioning</p>
+<p>extra cost</p>
+<p>benefits:</p>
+<p>Full control of FW policies and routing</p>
 
-Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)
+<p>Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)</p>
   
 ![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawiov2.png)
 
@@ -791,7 +793,7 @@ https://github.com/notras/PowerVSConnectivity/blob/main/gateway-vsrx-vSRXfullexa
 
 
 <p>Very useful guide from my coleague Chris:https://www.linkedin.com/in/csciarrino</p>
-This scenario use TGW in advance:
+This scenario use TGW in advance and Direct link for connect on-premise infrastructure:
 https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
 
 IBM cloud documentation:

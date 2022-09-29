@@ -50,7 +50,9 @@ https://cloud.ibm.com/catalog/services/power-systems-virtual-server
 Create subnets inside PowerVS service instance, the main reason, it should exist before you order Direct Link 2.0 connection from PowerVS colo to the rest IBM cloud resources, the main reason proper BGP routing.
 ![Creating Private Network](https://github.com/notras/PowerVSConnectivity/blob/main/PrivateNWcreation.png)
 <b> 3 step </b>
-We need to order direct link which will connect PowerVS with IBM Cloud services and attach previously created subnet 10.2.2.0/24 or several subnets to the Cloud Connection. IBM provide free of charge option for interconnection between PowerVS Colo and rest of the IBM Cloud services. By default PowerVS ASN 64999 and local IBM Cloud ANS 13884, you can find this details in Interconnectivity section:
+We need to order direct link which will connect PowerVS with IBM Cloud services and attach previously created subnet 10.2.2.0/24 or several subnets to the Cloud Connection. 
+<p>IBM provide free of charge option for interconnection between PowerVS Colo and rest of the IBM Cloud services.</p>
+By default PowerVS ASN 64999 and local IBM Cloud ANS 13884, you can find this details in Interconnectivity section:
 https://cloud.ibm.com/interconnectivity when your link will be provisioned.
 ![Creating Direct Link PowerVS to IBM Cloud](https://github.com/notras/PowerVSConnectivity/blob/main/DirectLinkPower.png)
 <b> 3 Step </b> 
@@ -63,41 +65,51 @@ You will see following details (I was replaced real IP's for security reasons)
 ![GW Appliance settings](https://github.com/notras/PowerVSConnectivity/blob/main/VSRXConfig.png)
 
 You need to record VSRX private IP and Public IP, you will use it for configuration purposes in our case:
-Private IP 10.75.12.11
-Public IP 161.32.44.198
+<p> Private IP 10.75.12.11 </p>
+<p> Public IP 161.32.44.198 </p>
 
 <b> 4 Step </b>
 You have choice to establish VPN from on premise to GW appliance or to establish GRE via Cloud Connection, the results will be the same. We will establish GRE firstly.
-We have cloud connection in established state it is point to point connectivity. IBM usually allocate 169.254.0.1/30 on PowerVS router side and 169.254.0.2/30 on the opposite side of IBM Cloud which is all other IBM Cloud Services.
+<p>We have cloud connection in established state it is point to point connectivity.</p>
+<p>IBM usually allocate 169.254.0.1/30 on PowerVS router side and 169.254.0.2/30 on the opposite side of IBM Cloud which is all other IBM Cloud Services.</p>
+
 ![Cloud Connection](https://github.com/notras/PowerVSConnectivity/blob/main/CloudConnectionSettings.png)
 In the virtual connection section you can manage which services will be connected, you can connect only Classic where Juniper provisioned or you can also attach VPC.
-You need to enable GRE 
+
+<p>You need to enable GRE</p>
+
 ![Virtual connection](https://github.com/notras/PowerVSConnectivity/blob/main/virtualconnectionSettings.png)
 And add following GRE settings:
+
 ![GRE settings](https://github.com/notras/PowerVSConnectivity/blob/main/GREsettings.png)
-GRE destination should be Juniper VSRX Private IP 10.75.12.11
-GRE subnet 172.16.2.1/30 ( This is overlay subnet which will be used for P2P communication via GRE between VSRX and PowerVS router which is managed by IBM, you can choose any subnet based on your preferences, you will use IP from this subnet for source and Destination of your GRE tunnel)
+
+<p>GRE destination should be Juniper VSRX Private IP 10.75.12.11</p>
+
+<p>GRE subnet 172.16.2.1/30 ( This is overlay subnet which will be used for P2P communication via GRE between VSRX and PowerVS router which is managed by IBM, you can choose any subnet based on your preferences, you will use IP from this subnet for source and Destination of your GRE tunnel)</p>
 We will asign following IP's
-PowerVS router IP 172.16.2.5 (if you unable to identify this IP the best option to raise ticket for support and get confirmation about asigned IP)
+<p>PowerVS router IP 172.16.2.5 (if you unable to identify this IP the best option to raise ticket for support and get confirmation about asigned IP)</p>
 VSRX GRE IP 172.16.2.6 ( this IP you can assign yourself from the subnet which you selected for GRE)
-When you finished configuration on the Cloud connection side, you need to configure VSRX as well. 
+<p>When you finished configuration on the Cloud connection side, you need to configure VSRX as well.</p>
 <b> 5 Step </b>
-GRE configuration on the VSRX
-You can choose how to configure VSRX via GUI or via ssh:
-Via gui you can connect to private or public VSRX IP from GW configuration page: in our case it will be https://10.75.12.11:8443 to connect via Private IP you need to allow VPN access for your user and enable Motion Pro client VPN. additional details here (https://cloud.ibm.com/docs/iaas-vpn?topic=iaas-vpn-standalone-vpn-clients#macos-standalone-client)
-We will connect via ssh with credentials available on the VSRX configuration page
-First off all you need to create gre tunnel with following parameters:
-Source IP 10.75.12.11 (VSRX private IP)
-Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connection for Cloud Connection we defined 172.16.2.0/30 subnet)
-GRE interface IP address on VSRX 172.16.2.6/30
-Below how necessary commands
+<p>GRE configuration on the VSRX</p>
+<p>You can choose how to configure VSRX via GUI or via ssh:</p>
+Via gui you can connect to private or public VSRX IP from GW configuration page: 
+<p>in our case it will be https://10.75.12.11:8443</p>
+<p>To connect via Private IP you need to allow VPN access for your user and enable Motion Pro client VPN. additional details here (https://cloud.ibm.com/docs/iaas-vpn?topic=iaas-vpn-standalone-vpn-clients#macos-standalone-client)</p>
+<p>We will connect via ssh instead with credentials available on the VSRX configuration page</p>
+<p>First off all you need to create gre tunnel with following parameters:</p>
+<p>Source IP 10.75.12.11 (VSRX private IP)</p>
+<p>Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connection for Cloud Connection we defined 172.16.2.0/30 subnet)</p>
+<p>GRE interface IP address on VSRX 172.16.2.6/30</p>
+Below necessary commands to create GRE tunnel on VSRX
+
 ```shell
 set interfaces gr-0/0/0 unit 0 tunnel source 10.75.12.11
 set interfaces gr-0/0/0 unit 0 tunnel destination 172.16.2.1
 set interfaces gr-0/0/0 unit 0 family inet mtu 1400
 set interfaces gr-0/0/0 unit 0 family inet address 172.16.2.6/30
 ```
-respective configuration in gui would be:
+Respective configuration in gui would be:
 ```
     }
     gr-0/0/0 {
@@ -113,7 +125,9 @@ respective configuration in gui would be:
         }
     }
 ```
-next you need to allow security zones, because this traffic flow via private network we allow all, but you can permit only explicit subnets etc if you need for security reason. We allow traffic between Power Zone which is belong to gre interface and allow to traverse traffic to IBM Cloud Classic which is SL-PRIVATE zone by default in IBM Cloud, also for troubleshooting allowed embedded zone junos-host to allow ping from local VSRX interfaces.
+
+<p>next you need to allow security zones, because this traffic flow via private network we allow all, but you can permit only explicit subnets etc if you need for security reason. We allow traffic between Power Zone which is belong to gre interface and allow to traverse traffic to IBM Cloud Classic which is SL-PRIVATE zone by default in IBM Cloud, also for troubleshooting allowed embedded zone junos-host to allow ping from local VSRX interfaces.</p>
+
 
 ```shell
 set security zones security-zone POWER interfaces gr-0/0/0.0 host-inbound-traffic system-services all
@@ -126,10 +140,6 @@ set security policies from-zone POWER to-zone SL-PRIVATE policy PowerGRE-Private
 set security policies from-zone POWER to-zone SL-PRIVATE policy PowerGRE-Private-net match destination-address any
 set security policies from-zone POWER to-zone SL-PRIVATE policy PowerGRE-Private-net match application any
 set security policies from-zone POWER to-zone SL-PRIVATE policy PowerGRE-Private-net then permit
-set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR match source-address any
-set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR match destination-address any
-set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR match application any
-set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR then permit
 set security policies from-zone POWER to-zone POWER policy PowerGRE-to-PowerGRE match source-address any
 set security policies from-zone POWER to-zone POWER policy PowerGRE-to-PowerGRE match destination-address any
 set security policies from-zone POWER to-zone POWER policy PowerGRE-to-PowerGRE match application any
@@ -143,7 +153,9 @@ set security policies from-zone junos-host to-zone POWER policy allow-ping-to-po
 set security policies from-zone junos-host to-zone POWER policy allow-ping-to-power match application junos-ping
 set security policies from-zone junos-host to-zone POWER policy allow-ping-to-power then permit
 ```
+
 In gui it will looks following:
+
 ```
 from-zone SL-PRIVATE to-zone POWER {
             policy Private-net-PowerGRE {
@@ -222,9 +234,10 @@ from-zone SL-PRIVATE to-zone POWER {
 ```
 
 Now we need to configure BGP
-The BGP neighbor the same IP which is used for GRE destination on the Power VS router end 172.16.2.5
-The Power VS ASN 64999
-VSRX ASN 64880
+<p>The BGP neighbor the same IP which is used for GRE destination on the Power VS router end which is: 172.16.2.5</p>
+<p>The Power VS ASN 64999</p>
+<p>VSRX ASN 64880</p>
+
 ```shell
 set protocols bgp group tunGRE local-as 64880
 set protocols bgp group tunGRE neighbor 10.12.248.1
@@ -239,6 +252,7 @@ set protocols bgp group PowerFra neighbor 172.16.2.5
 set routing-options autonomous-system 64880
 ```
 We need to add policy to advertize prefixes from on-premise to Power VS router
+
 ```shell
 set policy-options policy-statement adver-prefix term 1 from route-filter 10.6.22.0/24 exact
 set policy-options policy-statement adver-prefix term 1 from route-filter 10.5.11.0/24 exact
@@ -246,6 +260,7 @@ set policy-options policy-statement adver-prefix term 1 then accept
 set policy-options policy-statement adver-prefix term default then reject
 ```
 Then we need to allow BGP protocol in VSRX firewall
+
 ```shell
 set firewall filter PROTECT-IN term BGP from source-address 172.16.2.1/32
 set firewall filter PROTECT-IN term BGP from source-address 10.12.248.2/32
@@ -265,6 +280,7 @@ set firewall filter PROTECT-IN term BGP then accept
 ```
 
 We need to add static rotes for underlay network to proper routing traffice via Direct Link connection
+
 ```shell
 set routing-options static route 169.254.0.0/16 next-hop 10.75.12.1
 set routing-options static route 172.16.2.1/32 next-hop 10.75.12.1
@@ -289,6 +305,7 @@ Respective configuration in another notation are following
             neighbor 172.16.2.5;
         }
 ```
+
 ```
 policy-options {
     policy-statement adver-prefix {
@@ -322,6 +339,7 @@ policy-options {
     }
 }
 ```
+
 ```
  }
         term BGP {
@@ -347,6 +365,7 @@ policy-options {
             }
             then accept;
 ```
+
 ```
         route 169.254.0.0/16 next-hop 10.75.12.1;
         route 172.16.2.1/32 next-hop 10.75.12.1;
@@ -384,6 +403,14 @@ inet.0: 18 destinations, 18 routes (17 active, 0 holddown, 1 hidden)
 * 10.5.11.0/24            Self                                    I
 * 10.6.22.0/24            Self                                    I
 ```
+<p>Regarding troubleshooting</p>
+<p>You will not able to ping from PowerVS you VSRX private IP because it is underlay network for your GRE tunnel</p>
+<p>anyway you can run ping on the Power VS instance and see how icmp flow to VPN interface when it will be configured later</p>
+You can do it with following command on the VSRX
+
+ ```shell
+ run show security flow session protocol icmp
+ ```
 
 <b> 6 Step </b>
 We need to establish VPN to on premise and route traffic from GRE to VPN interface st.0 
@@ -757,6 +784,9 @@ filter PROTECT-IN {
     }
 ```
 Then you need to repeat necessary steps on the on-premise VPN GW device.
+
+
+
 
 
 

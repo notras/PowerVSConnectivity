@@ -263,6 +263,13 @@ set firewall filter PROTECT-IN term BGP from protocol tcp
 set firewall filter PROTECT-IN term BGP from port bgp
 set firewall filter PROTECT-IN term BGP then accept
 ```
+
+We need to add static rotes for underlay network to proper routing traffice via Direct Link connection
+```shell
+set routing-options static route 169.254.0.0/16 next-hop 10.75.12.1
+set routing-options static route 172.16.2.1/32 next-hop 10.75.12.1
+```
+
 Respective configuration in another notation are following
 
 ```
@@ -339,6 +346,10 @@ policy-options {
                 port bgp;
             }
             then accept;
+```
+```
+        route 169.254.0.0/16 next-hop 10.75.12.1;
+        route 172.16.2.1/32 next-hop 10.75.12.1;
 ```
 
 To check that GRE working as expected you can run following command:
@@ -470,6 +481,284 @@ ike {
     }
 
 ```
+Also we need to allow security zones from and to VPN 
+```shell
+set security address-book global address net_10.6.22.0 10.6.22.0/24
+set security address-book global address NET_10.75.12.0 10.75.12.0/26
+set security address-book global address net_10.5.11.0 10.5.11.0/24
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net description "DR to privateNET"
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net match source-address net_10.6.22.0
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net match source-address net_10.5.11.0
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net match destination-address NET_10.75.12.0
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net match application any
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net match dynamic-application any
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net match url-category none
+set security policies from-zone vpn to-zone SL-PRIVATE policy DR-to-private-net then permit
+set security policies from-zone SL-PRIVATE to-zone vpn policy private-net-to-DR match source-address NET_10.75.12.0
+set security policies from-zone SL-PRIVATE to-zone vpn policy private-net-to-DR match destination-address net_10.6.22.0
+set security policies from-zone SL-PRIVATE to-zone vpn policy private-net-to-DR match destination-address net_10.5.11.0
+set security policies from-zone SL-PRIVATE to-zone vpn policy private-net-to-DR match application any
+set security policies from-zone SL-PRIVATE to-zone vpn policy private-net-to-DR match dynamic-application any
+set security policies from-zone SL-PRIVATE to-zone vpn policy private-net-to-DR match url-category none
+set security policies from-zone SL-PRIVATE to-zone vpn policy private-net-to-DR then permit
+set security policies from-zone vpn to-zone POWER policy DR-to-PowerGRE match source-address any
+set security policies from-zone vpn to-zone POWER policy DR-to-PowerGRE match destination-address any
+set security policies from-zone vpn to-zone POWER policy DR-to-PowerGRE match application any
+set security policies from-zone vpn to-zone POWER policy DR-to-PowerGRE then permit
+set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR match source-address any
+set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR match destination-address any
+set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR match application any
+set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR then permit
+set security zones security-zone vpn description DR-NET
+set security zones security-zone vpn interfaces st0.0
+```
+You need to allow ICMP for troubleshooting purposes below configuration which I used in my case
+```shell
+set firewall filter PROTECT-IN term IKE from source-address 182.11.38.1/32
+set firewall filter PROTECT-IN term IKE from destination-address 161.32.44.198/32
+set firewall filter PROTECT-IN term IKE then accept
+set firewall filter PROTECT-IN term ESP from source-address 182.11.38.1/32
+set firewall filter PROTECT-IN term ESP from destination-address 161.32.44.198/32
+set firewall filter PROTECT-IN term ESP from protocol esp
+set firewall filter PROTECT-IN term ESP then accept
+set firewall filter PROTECT-IN term PING from source-address 182.11.38.1/32
+set firewall filter PROTECT-IN term PING from source-address 10.2.2.1/32
+set firewall filter PROTECT-IN term PING from source-address 10.6.22.1/32
+set firewall filter PROTECT-IN term PING from source-address 10.75.12.1/32
+set firewall filter PROTECT-IN term PING from source-address 172.16.2.1/32
+set firewall filter PROTECT-IN term PING from source-address 172.16.2.3/32
+set firewall filter PROTECT-IN term PING from source-address 172.16.2.5/32
+set firewall filter PROTECT-IN term PING from source-address 172.16.2.6/32
+set firewall filter PROTECT-IN term PING from source-address 10.75.12.11/32
+set firewall filter PROTECT-IN term PING from source-address 10.5.11.0/24
+set firewall filter PROTECT-IN term PING from destination-address 161.32.44.198/32
+set firewall filter PROTECT-IN term PING from destination-address 10.75.12.1/32
+set firewall filter PROTECT-IN term PING from destination-address 10.75.12.11/32
+set firewall filter PROTECT-IN term PING from destination-address 172.16.2.1/32
+set firewall filter PROTECT-IN term PING from destination-address 172.16.2.3/32
+set firewall filter PROTECT-IN term PING from destination-address 172.16.2.6/32
+set firewall filter PROTECT-IN term PING from destination-address 172.16.2.5/32
+set firewall filter PROTECT-IN term PING from destination-address 169.254.0.2/32
+set firewall filter PROTECT-IN term PING from destination-address 169.254.0.1/32
+set firewall filter PROTECT-IN term PING from destination-address 10.6.22.0/32
+set firewall filter PROTECT-IN term PING from destination-address 195.66.81.1/32
+set firewall filter PROTECT-IN term PING from destination-address 192.168.4.56/32
+set firewall filter PROTECT-IN term PING from destination-address 10.12.248.2/32
+set firewall filter PROTECT-IN term PING from destination-address 10.12.248.1/32
+set firewall filter PROTECT-IN term PING from destination-address 10.2.2.1/32
+set firewall filter PROTECT-IN term PING from destination-address 10.5.11.0/24
+set firewall filter PROTECT-IN term PING from protocol icmp
+set firewall filter PROTECT-IN term PING then accept
+```
+Finally we need to add route from PowerVS private network to VPN interface
+```shell
+  set routing-options static route 10.5.11.0/24 next-hop st0.0
+  set routing-options static route 10.6.22.0/24 next-hop st0.0
+```
+
+in other notation
+
+```
+ike {
+        proposal VPN-DR-IBM {
+            authentication-method pre-shared-keys;
+            dh-group group14;
+            authentication-algorithm sha-256;
+            encryption-algorithm aes-256-cbc;
+            lifetime-seconds 86400;
+        }
+        policy VPN-DR-IBM {
+            mode main;
+            reauth-frequency 0;
+            proposals VPN-DR-IBM;
+            pre-shared-key ascii-text "$9$TzF/CtuBRh9Ct0B1EhcSrvM8XxdbYg8LUj"; ## SECRET-DATA
+        }
+        gateway VPN-DR-IBM {
+            ike-policy VPN-DR-IBM;
+            address 182.11.38.11;
+            no-nat-traversal;
+            local-identity inet 161.32.44.198;
+            remote-identity inet 182.11.38.11;
+            external-interface ae1;
+            local-address 161.32.44.198;
+            version v2-only;
+            fragmentation {
+                disable;
+            }
+        }
+    }
+    ipsec {
+        proposal VPN-DR-IBM {
+            protocol esp;
+            authentication-algorithm hmac-sha-256-128;
+            encryption-algorithm aes-256-cbc;
+            lifetime-seconds 3600;
+        }
+        policy VPN-DR-IBM {
+            perfect-forward-secrecy {
+                keys group14;
+            }
+            proposals VPN-DR-IBM;
+        }
+        vpn VPN-DR-IBM {
+            bind-interface st0.0;
+            df-bit clear;
+            ike {
+                gateway VPN-DR-IBM;
+                no-anti-replay;
+                ipsec-policy VPN-DR-IBM;
+            }
+            establish-tunnels immediately;
+        }
+    }
+        
+```
+
+```
+address-book {
+        global {
+            address net_10.6.22.0 10.6.22.0/24;
+            address NET_10.75.12.0 10.75.12.0/26;
+            address net_10.5.11.0 10.5.11.0/24;
+             }
+        }
+```
+```
+}
+        from-zone vpn to-zone SL-PRIVATE {
+            policy DR-to-private-net {
+                description "DR to privateNET";
+                match {
+                    source-address [ net_10.6.22.0 net_10.5.11.0 ];
+                    destination-address NET_10.75.12.0;
+                    application any;
+                    dynamic-application any;
+                    url-category none;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+        from-zone SL-PRIVATE to-zone vpn {
+            policy private-net-to-DR {
+                match {
+                    source-address NET_10.75.12.0;
+                    destination-address net_10.6.22.0;
+                    application any;
+                    dynamic-application any;
+                    url-category none;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+ from-zone vpn to-zone POWER {
+            policy DR-to-PowerGRE {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+        from-zone POWER to-zone vpn {
+            policy PowerGRE-to-DR {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+        
+         security-zone vpn {
+            description DR-NET;
+            interfaces {
+                st0.0;
+            }
+        }
+```
+
+```
+filter PROTECT-IN {
+        term IKE {
+            from {
+                source-address {
+                    182.11.38.11/32;
+                }
+                destination-address {
+                    161.32.44.198/32;
+                }
+            }
+            then accept;
+        }
+
+        term PING {
+            from {
+                source-address {
+                    182.11.38.11/32;
+                    10.2.2.1/32;
+                    10.6.22.1/32;
+                    10.75.12.1/32;
+                    172.16.2.1/32;
+                    172.16.2.3/32;
+                    172.16.2.5/32;
+                    172.16.2.6/32;
+                    10.75.12.11/32;
+                    10.5.11.0/24;
+                }
+                destination-address {
+                    161.32.44.198/32;
+                    10.75.12.1/32;
+                    10.75.12.11/32;
+                    172.16.2.1/32;
+                    172.16.2.3/32;
+                    172.16.2.6/32;
+                    172.16.2.5/32;
+                    169.254.0.2/32;
+                    169.254.0.1/32;
+                    10.6.22.131/32;
+                    195.66.81.1/32;
+                    192.168.4.56/32;
+                    10.12.248.2/32;
+                    10.12.248.1/32;
+                    10.2.2.1/32;
+                }
+                protocol icmp;
+            }
+            then accept;
+        }
+        term ESP {
+            from {
+                source-address {
+                    182.11.38.11/32;
+                }
+                destination-address {
+                    161.32.44.198/32;
+                }
+                protocol esp;
+            }
+            then accept;
+        }
+```
+
+```
+   static {
+        route 10.6.22.0/24 next-hop st0.0;
+        route 10.5.11.0/24 next-hop st0.0;
+    }
+```
+Then you need to repeat necessary steps on the on-premise VPN GW device.
+
+
 
 Very useful guide from my coleague: https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
 

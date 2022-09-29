@@ -92,7 +92,6 @@ Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connec
 GRE interface IP address on VSRX 172.16.2.6/30
 Below how necessary commands
 ```shell
-edit
 set interfaces gr-0/0/0 unit 0 tunnel source 10.75.12.11
 set interfaces gr-0/0/0 unit 0 tunnel destination 172.16.2.1
 set interfaces gr-0/0/0 unit 0 family inet mtu 1400
@@ -206,6 +205,140 @@ from-zone SL-PRIVATE to-zone POWER {
                 }
             }
         }
+        security-zone POWER {
+            interfaces {
+                gr-0/0/0.0 {
+                    host-inbound-traffic {
+                        system-services {
+                            all;
+                        }
+                        protocols {
+                            all;
+                        }
+                    }
+                }
+            }
+        }
+```
+
+Now we need to configure BGP
+The BGP neighbor the same IP which is used for GRE destination on the Power VS router end 172.16.2.5
+The Power VS ASN 64999
+VSRX ASN 64880
+```shell
+set protocols bgp group tunGRE local-as 64880
+set protocols bgp group tunGRE neighbor 10.12.248.1
+set protocols bgp group PowerFra type external
+set protocols bgp group PowerFra local-address 172.16.2.6
+set protocols bgp group PowerFra family inet unicast
+set protocols bgp group PowerFra family inet6 unicast
+set protocols bgp group PowerFra export adver-prefix
+set protocols bgp group PowerFra peer-as 64999
+set protocols bgp group PowerFra local-as 64880
+set protocols bgp group PowerFra neighbor 172.16.2.5
+set routing-options autonomous-system 64880
+```
+We need to add policy to advertize prefixes from on-premise to Power VS router
+```shell
+set policy-options policy-statement adver-prefix term 1 from route-filter 10.6.22.0/24 exact
+set policy-options policy-statement adver-prefix term 1 from route-filter 10.5.11.0/24 exact
+set policy-options policy-statement adver-prefix term 1 then accept
+set policy-options policy-statement adver-prefix term default then reject
+```
+Then we need to allow BGP protocol in VSRX firewall
+```shell
+set firewall filter PROTECT-IN term BGP from source-address 172.16.2.1/32
+set firewall filter PROTECT-IN term BGP from source-address 10.12.248.2/32
+set firewall filter PROTECT-IN term BGP from source-address 10.12.248.1/32
+set firewall filter PROTECT-IN term BGP from source-address 169.254.0.1/32
+set firewall filter PROTECT-IN term BGP from source-address 192.168.4.56/32
+set firewall filter PROTECT-IN term BGP from source-address 172.16.2.5/32
+set firewall filter PROTECT-IN term BGP from destination-address 169.254.0.1/32
+set firewall filter PROTECT-IN term BGP from destination-address 172.16.2.1/32
+set firewall filter PROTECT-IN term BGP from destination-address 169.254.0.2/32
+set firewall filter PROTECT-IN term BGP from destination-address 10.75.12.11/32
+set firewall filter PROTECT-IN term BGP from destination-address 10.12.248.2/32
+set firewall filter PROTECT-IN term BGP from destination-address 172.16.2.6/32
+set firewall filter PROTECT-IN term BGP from protocol tcp
+set firewall filter PROTECT-IN term BGP from port bgp
+set firewall filter PROTECT-IN term BGP then accept
+```
+Respective configuration in another notation are following
+
+```
+        }
+        group PowerFra {
+            type external;
+            local-address 172.16.2.6;
+            family inet {
+                unicast;
+            }
+            family inet6 {
+                unicast;
+            }
+            export adver-prefix;
+            peer-as 64999;
+            local-as 64880;
+            neighbor 172.16.2.5;
+        }
+```
+```
+policy-options {
+    policy-statement adver-prefix {
+        term 1 {
+            from {
+                route-filter 10.6.22.0/24 exact;
+                route-filter 10.5.11.0/24 exact;
+            }
+            then accept;
+        }
+        term default {
+            then reject;
+        }
+    }
+}
+```
+
+```
+policy-options {
+    policy-statement adver-prefix {
+        term 1 {
+            from {
+                route-filter 10.6.22.0/24 exact;
+                route-filter 10.5.11.0/24 exact;
+            }
+            then accept;
+        }
+        term default {
+            then reject;
+        }
+    }
+}
+```
+```
+ }
+        term BGP {
+            from {
+                source-address {
+                    172.16.2.1/32;
+                    10.12.248.2/32;
+                    10.12.248.1/32;
+                    169.254.0.1/32;
+                    192.168.4.56/32;
+                    172.16.2.5/32;
+                }
+                destination-address {
+                    169.254.0.1/32;
+                    172.16.2.1/32;
+                    169.254.0.2/32;
+                    10.75.12.11/32;
+                    10.12.248.2/32;
+                    172.16.2.6/32;
+                }
+                protocol tcp;
+                port bgp;
+            }
+            then accept;
 ```
 
 Very useful guide from my coleague: https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/

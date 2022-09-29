@@ -785,12 +785,14 @@ filter PROTECT-IN {
 ```
 Then you need to repeat necessary steps on the on-premise VPN GW device.
 
+<p> You can find here end to end configuration for scenario described above:</p>
+
+https://github.com/notras/PowerVSConnectivity/blob/main/gateway-vsrx-vSRXfullexample.conf
 
 
-
-
-
-Very useful guide from my coleague: https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
+<p>Very useful guide from my coleague Chris:https://www.linkedin.com/in/csciarrino</p>
+This scenario use TGW in advance:
+https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
 
 IBM cloud documentation:
 PowerVS:

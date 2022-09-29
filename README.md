@@ -797,13 +797,13 @@ Then you need to repeat necessary steps on the on-premise VPN GW device.
 https://github.com/notras/PowerVSConnectivity/blob/main/gateway-vsrx-vSRXfullexample.conf
 
 
-<p>Very useful guide from my coleague Chris:https://www.linkedin.com/in/csciarrino</p>
-This scenario use TGW in advance and Direct link for connect on-premise infrastructure:
+<p>Very useful guide from my coleague Chris. This scenario use TGW in advance and Direct link for connect on-premise infrastructure:</p>
+
 https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
 
-IBM cloud documentation:
-PowerVS:
+<p>IBM cloud documentation:</p>
+<p>PowerVS:</p>
 https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-network-architecture-diagrams#network-reference-architecture-pvs2pvs
 https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-cloud-connections#configure-gre-tunnel
-JuniperVSR configuration:
+<p>JuniperVSRX configuration:</p>
 https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-cloud-connections#configure-gre-tunnel

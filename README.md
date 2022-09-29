@@ -35,7 +35,6 @@ limitations:
  1. Full control of FW policies and routing
  
 <p>Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)</p>
-
   
 ![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawiov2.png)
 
@@ -55,12 +54,15 @@ https://cloud.ibm.com/catalog/services/power-systems-virtual-server
 
 <b>2 step </b>
 Create subnets inside PowerVS service instance, the main reason, it should exist before you order Direct Link 2.0 connection from PowerVS colo to the rest IBM cloud resources, the main reason proper BGP routing.
+
 ![Creating Private Network](https://github.com/notras/PowerVSConnectivity/blob/main/PrivateNWcreation.png)
+
 <b> 3 step </b>
 We need to order direct link which will connect PowerVS with IBM Cloud services and attach previously created subnet 10.2.2.0/24 or several subnets to the Cloud Connection. 
 <p>IBM provide free of charge option for interconnection between PowerVS Colo and rest of the IBM Cloud services.</p>
 By default PowerVS ASN 64999 and local IBM Cloud ANS 13884, you can find this details in Interconnectivity section:
 https://cloud.ibm.com/interconnectivity when your link will be provisioned.
+
 ![Creating Direct Link PowerVS to IBM Cloud](https://github.com/notras/PowerVSConnectivity/blob/main/DirectLinkPower.png)
 <b> 3 Step </b> 
 Provisioning GW appliance https://cloud.ibm.com/gen1/infrastructure/provision/gateway
@@ -68,7 +70,8 @@ You can choose bandwidth, specific version based on your needs, better to deploy
 <p>You can provision single GW or HA pair depending from your requirements</p>
 <p>In this scenario I will use single GW apliance:</p>
 
-![GW Appliance provisioning(]https://github.com/notras/PowerVSConnectivity/blob/main/GWprovisioning.png)
+![GW Appliance provisioning](https://github.com/notras/PowerVSConnectivity/blob/main/GWprovisioning.png)
+
 Provisioning took up to four hours.
 When GW ready, you will receive email, or you can check it in the portal here: https://cloud.ibm.com/netsec/gateway-appliances
 You will see following details (I was replaced real IP's for security reasons)

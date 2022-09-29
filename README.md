@@ -53,6 +53,14 @@ We need to order direct link which will connect PowerVS with IBM Cloud services 
 ![Creating Direct Link PowerVS to IBM Cloud](https://github.com/notras/PowerVSConnectivity/blob/main/DirectLinkPower.png)
 <b> 3 Step </b> 
 Provisioning GW appliance https://cloud.ibm.com/gen1/infrastructure/provision/gateway
+![GW Appliance provisioning]
 
 
 useful link https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
+
+IBM cloud documentation:
+PowerVS:
+https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-network-architecture-diagrams#network-reference-architecture-pvs2pvs
+https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-cloud-connections#configure-gre-tunnel
+JuniperVSR configuration:
+https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-cloud-connections#configure-gre-tunnel

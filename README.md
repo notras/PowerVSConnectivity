@@ -29,9 +29,15 @@ benefits:
 Full control of FW policies and routing
 
 Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)
- 
-
+  
 ![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawioV1.png)
+
+<b> Prerequisites before you start</b>
+ 1. On-premise device to terminate VPN traffic from IBM cloud.
+ 2. Plan your network requirements for IBM Power VS subnets, how many, choose CIDR prefixes to not overlap with you local subnet etc
+ 3. Have at least some experience with Juniper Gateway appliance or simmilar devices
+ 4. IBM Cloud account and permissions to provision, and manage services
+ 5. Estimate your charges for required resources Power VS (billed hourly), GW appliance (billed monthly)  etc and get necessary approvals
 
 <b>1 step</b>
 Create Power VS service insrtance

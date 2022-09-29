@@ -30,7 +30,7 @@ Full control of FW policies and routing
 
 Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)
   
-![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawioV1.png)
+![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawiov2.png)
 
 <b> Prerequisites before you start</b>
  1. On-premise device to terminate VPN traffic from IBM cloud.
@@ -64,7 +64,7 @@ You will see following details (I was replaced real IP's for security reasons)
 
 You need to record VSRX private IP and Public IP, you will use it for configuration purposes in our case:
 Private IP 10.75.12.11
-Public IP 161.32.44.122
+Public IP 161.32.44.198
 
 <b> 4 Step </b>
 You have choice to establish VPN from on premise to GW appliance or to establish GRE via Cloud Connection, the results will be the same. We will establish GRE firstly.
@@ -339,6 +339,136 @@ policy-options {
                 port bgp;
             }
             then accept;
+```
+
+To check that GRE working as expected you can run following command:
+If BGP established GRE in operational mode
+
+```shell
+show bgp summary
+```
+```
+admin@gateway01-vsrx-vSRX> show bgp summary
+Threading mode: BGP I/O
+Default eBGP mode: advertise - accept, receive - accept
+Groups: 3 Peers: 3 Down peers: 2
+Table          Tot Paths  Act Paths Suppressed    History Damp State    Pending
+inet.0              
+                       1          1          0          0          0          0
+inet6.0              
+                       0          0          0          0          0          0
+Peer                     AS      InPkt     OutPkt    OutQ   Flaps Last Up/Dwn State|#Active/Received/Accepted/Damped...
+172.16.2.5            64999       3172       3217       0       1  1d 0:06:00 Establ
+```
+If route advertized, you will then able to route this subnets to VPN tunnel
+
+```shell
+show route advertising-protocol bgp 172.16.2.5
+```
+```
+admin@gateway01-vsrx-vSRX> show route advertising-protocol bgp 172.16.2.5
+
+inet.0: 18 destinations, 18 routes (17 active, 0 holddown, 1 hidden)
+  Prefix            Nexthop          MED     Lclpref    AS path
+* 10.5.11.0/24            Self                                    I
+* 10.6.22.0/24            Self                                    I
+```
+
+<b> 6 Step </b>
+We need to establish VPN to on premise and route traffic from GRE to VPN interface st.0 
+I will cover only configuration on the IBM Cloud side, on-premise configuration will be the same and only difference from specific device which used in the organization.
+
+the VSRX Public IP:  161.32.44.198 
+the on-premise VPN GE IP: 182.11.38.1
+you need to replace pre-shared key "XXXXXXXXXXXXXXXX" to yours
+
+```shell
+set security ike proposal VPN-DR-IBM authentication-method pre-shared-keys
+set security ike proposal VPN-DR-IBM dh-group group14
+set security ike proposal VPN-DR-IBM authentication-algorithm sha-256
+set security ike proposal VPN-DR-IBM encryption-algorithm aes-256-cbc
+set security ike proposal VPN-DR-IBM lifetime-seconds 86400
+set security ike policy VPN-DR-IBM mode main
+set security ike policy VPN-DR-IBM reauth-frequency 0
+set security ike policy VPN-DR-IBM proposals VPN-DR-IBM
+set security ike policy VPN-DR-IBM pre-shared-key ascii-text "XXXXXXXXXXXXXXXX"
+set security ike gateway VPN-DR-IBM ike-policy VPN-DR-IBM
+set security ike gateway VPN-DR-IBM address 182.11.38.1
+set security ike gateway VPN-DR-IBM no-nat-traversal
+set security ike gateway VPN-DR-IBM local-identity inet 161.32.44.198
+set security ike gateway VPN-DR-IBM remote-identity inet 182.11.38.1
+set security ike gateway VPN-DR-IBM external-interface ae1
+set security ike gateway VPN-DR-IBM local-address 161.32.44.198
+set security ike gateway VPN-DR-IBM version v2-only
+set security ike gateway VPN-DR-IBM fragmentation disable
+set security ipsec proposal VPN-DR-IBM protocol esp
+set security ipsec proposal VPN-DR-IBM authentication-algorithm hmac-sha-256-128
+set security ipsec proposal VPN-DR-IBM encryption-algorithm aes-256-cbc
+set security ipsec proposal VPN-DR-IBM lifetime-seconds 3600
+set security ipsec policy VPN-DR-IBM perfect-forward-secrecy keys group14
+set security ipsec policy VPN-DR-IBM proposals VPN-DR-IBM
+set security ipsec vpn VPN-DR-IBM bind-interface st0.0
+set security ipsec vpn VPN-DR-IBM df-bit clear
+set security ipsec vpn VPN-DR-IBM ike gateway VPN-DR-IBM
+set security ipsec vpn VPN-DR-IBM ike no-anti-replay
+set security ipsec vpn VPN-DR-IBM ike ipsec-policy VPN-DR-IBM
+set security ipsec vpn VPN-DR-IBM establish-tunnels immediately
+```
+in the different notation
+```shell
+ike {
+        proposal VPN-DR-IBM {
+            authentication-method pre-shared-keys;
+            dh-group group14;
+            authentication-algorithm sha-256;
+            encryption-algorithm aes-256-cbc;
+            lifetime-seconds 86400;
+        }
+        policy VPN-DR-IBM {
+            mode main;
+            reauth-frequency 0;
+            proposals VPN-DR-IBM;
+            pre-shared-key ascii-text "XXXXXXXXXXXXXXXXXXXX"; ## SECRET-DATA
+        }
+        gateway VPN-DR-IBM {
+            ike-policy VPN-DR-IBM;
+            address 182.11.38.11;
+            no-nat-traversal;
+            local-identity inet 161.32.44.198;
+            remote-identity inet 182.11.38.11;
+            external-interface ae1;
+            local-address 161.32.44.198;
+            version v2-only;
+            fragmentation {
+                disable;
+            }
+        }
+    }
+    ipsec {
+        proposal VPN-DR-IBM {
+            protocol esp;
+            authentication-algorithm hmac-sha-256-128;
+            encryption-algorithm aes-256-cbc;
+            lifetime-seconds 3600;
+        }
+        policy VPN-DR-IBM {
+            perfect-forward-secrecy {
+                keys group14;
+            }
+            proposals VPN-DR-IBM;
+        }
+        vpn VPN-DR-IBM {
+            bind-interface st0.0;
+            df-bit clear;
+            ike {
+                gateway VPN-DR-IBM;
+                no-anti-replay;
+                ipsec-policy VPN-DR-IBM;
+            }
+            establish-tunnels immediately;
+        }
+    }
+
 ```
 
 Very useful guide from my coleague: https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/

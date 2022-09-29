@@ -59,21 +59,22 @@ You can choose bandwidth, specific version based on your needs, better to deploy
 Provisioning took up to four hours.
 When GW ready, you will receive email, or you can check it in the portal here: https://cloud.ibm.com/netsec/gateway-appliances
 You will see following details (I was replaced real IP's for security reasons)
-![GW Appliance settings]
+![GW Appliance settings](https://github.com/notras/PowerVSConnectivity/blob/main/VSRXConfig.png)
 
 You need to record VSRX private IP and Public IP, you will use it for configuration purposes in our case:
 Private IP 10.75.12.11
 Public IP 161.32.44.122
 
-
-
 <b> 4 Step </b>
 You have choice to establish VPN from on premise to GW appliance or to establish GRE via Cloud Connection, the results will be the same. We will establish GRE firstly.
 We have cloud connection in established state it is point to point connectivity. IBM usually allocate 169.254.0.1/30 on PowerVS router side and 169.254.0.2/30 on the opposite side of IBM Cloud which is all other IBM Cloud Services.
+![Cloud Connection]
+
 In the virtual connection section you can manage which services will be connected, you can connect only Classic where Juniper provisioned
 
 
-useful link https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
+
+Very useful guide from my coleague: https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
 
 IBM cloud documentation:
 PowerVS:

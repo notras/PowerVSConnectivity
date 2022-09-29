@@ -33,6 +33,11 @@ Preffered option in our case was Option - 2 (more flexibility in configuration, 
 
 ![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawioV1.png)
 
+1 step
+Create Power VS service insrtance
+https://cloud.ibm.com/catalog/services/power-systems-virtual-server
+
+![Creating PowerVS instance]
 
 
 

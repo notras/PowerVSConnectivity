@@ -51,5 +51,8 @@ Create subnets inside PowerVS service instance, the main reason, it should exist
 <b> 3 step </b>
 We need to order direct link which will connect PowerVS with IBM Cloud services and attach previously created subnet 10.2.2.0/24 or several subnets to the Cloud Connection. IBM provide free of charge option for interconnection between PowerVS Colo and rest of the IBM Cloud services.
 ![Creating Direct Link PowerVS to IBM Cloud](https://github.com/notras/PowerVSConnectivity/blob/main/DirectLinkPower.png)
+<b> 3 Step </b> 
+Provisioning GW appliance https://cloud.ibm.com/gen1/infrastructure/provision/gateway
+
 
 useful link https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/

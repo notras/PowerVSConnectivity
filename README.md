@@ -10,8 +10,8 @@ From network perspective need additional actions to interconnect it from one to 
 
 In our cases, main objective was to establish bi-directional connectivity from client on-premise location to PowerVS colo.
 It is possible via two options 
- 1. VPN GW in VPC + TGW to PowerVS cloud connection 
- 2. GW appliance + Power VS cloud connection
+ 1. On-Premise GW -VPN GW in VPC + TGW via GRE to PowerVS cloud connection 
+ 2. On-Premise GW - GW appliance + GRE via Power VS cloud connection
  
 <strong>Option 1</strong>
 imitations:
@@ -35,7 +35,7 @@ Preffered option in our case was Option - 2 (more flexibility in configuration, 
 <b> Prerequisites before you start</b>
  1. On-premise device to terminate VPN traffic from IBM cloud.
  2. Plan your network requirements for IBM Power VS subnets, how many, choose CIDR prefixes to not overlap with you local subnet etc
- 3. Have at least some experience with Juniper Gateway appliance or simmilar devices
+ 3. Have at least some experience with Juniper Gateway appliance or simmilar devices 
  4. IBM Cloud account and permissions to provision, and manage services
  5. Estimate your charges for required resources Power VS (billed hourly), GW appliance (billed monthly)  etc and get necessary approvals
 
@@ -56,6 +56,21 @@ https://cloud.ibm.com/interconnectivity when your link will be provisioned.
 Provisioning GW appliance https://cloud.ibm.com/gen1/infrastructure/provision/gateway
 You can choose bandwidth, specific version based on your needs, better to deploy this GW in the same Cloud location where PowerVS located, but if you enabled global routing for Direct link it is not mandatory.
 ![GW Appliance provisioning(]https://github.com/notras/PowerVSConnectivity/blob/main/GWprovisioning.png)
+Provisioning took up to four hours.
+When GW ready, you will receive email, or you can check it in the portal here: https://cloud.ibm.com/netsec/gateway-appliances
+You will see following details (I was replaced real IP's for security reasons)
+![GW Appliance settings]
+
+You need to record VSRX private IP and Public IP, you will use it for configuration purposes in our case:
+Private IP 10.75.12.11
+Public IP 161.32.44.122
+
+
+
+<b> 4 Step </b>
+You have choice to establish VPN from on premise to GW appliance or to establish GRE via Cloud Connection, the results will be the same. We will establish GRE firstly.
+We have cloud connection in established state it is point to point connectivity. IBM usually allocate 169.254.0.1/30 on PowerVS router side and 169.254.0.2/30 on the opposite side of IBM Cloud which is all other IBM Cloud Services.
+In the virtual connection section you can manage which services will be connected, you can connect only Classic where Juniper provisioned
 
 
 useful link https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/

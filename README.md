@@ -75,7 +75,7 @@ You can choose bandwidth, specific version based on your needs, better to deploy
 Provisioning took up to four hours.
 When GW ready, you will receive email, or you can check it in the portal here: https://cloud.ibm.com/netsec/gateway-appliances
 You will see following details (I was replaced real IP's for security reasons)
-![GW Appliance settings](https://github.com/notras/PowerVSConnectivity/blob/main/VSRXConfig.png) 
+![GW Appliance settings](https://github.com/notras/PowerVSConnectivity/blob/main/VSRXConfigv1.png)
 
 You need to record VSRX private IP and Public IP, you will use it for configuration purposes in our case:
 <p> Private IP 10.75.12.11 </p>

@@ -16,7 +16,7 @@ It is possible via two options
 <strong>Option 1</strong>
 <p>limitations:</p>
 
-   1. Need to enable NAT-T on on-premise Gatawey because it is actual limitation of VPC VPN GW
+   1. Need to enable NAT-T on on-premise Gatewey because it is actual limitation of VPC VPN GW
    2. Not full control of VPN tunnel from log perspective and necessary settings
  
  <p>benefits:</p>
@@ -65,6 +65,9 @@ https://cloud.ibm.com/interconnectivity when your link will be provisioned.
 <b> 3 Step </b> 
 Provisioning GW appliance https://cloud.ibm.com/gen1/infrastructure/provision/gateway
 You can choose bandwidth, specific version based on your needs, better to deploy this GW in the same Cloud location where PowerVS located, but if you enabled global routing for Direct link it is not mandatory.
+<p>You can provision single GW or HA pair depending from your requirements</p>
+<p>In this scenario I will use single GW apliance:</p>
+
 ![GW Appliance provisioning(]https://github.com/notras/PowerVSConnectivity/blob/main/GWprovisioning.png)
 Provisioning took up to four hours.
 When GW ready, you will receive email, or you can check it in the portal here: https://cloud.ibm.com/netsec/gateway-appliances

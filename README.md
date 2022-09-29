@@ -1,4 +1,4 @@
-# PowerVSConnectivity
+# PowerVSConnectivity from on-premise via VPN
   <b>Establish connectivity on-premise to PowerVS via IBM Cloud Classic VSRX Gateway</b>
 
 We will realize follwing scenario described in IBM Cloud Documentation

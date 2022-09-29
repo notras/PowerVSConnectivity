@@ -39,8 +39,8 @@ https://cloud.ibm.com/catalog/services/power-systems-virtual-server
 
 ![Creating PowerVS instance](https://github.com/notras/PowerVSConnectivity/blob/main/powerVSinstanceceration.png)
 
-
-
+<b>2 step </b>
+Create subnets inside PowerVS service instance, the main reason, it should exist before you order Direct Link 2.0 connection from PowerVS colo to the rest IBM cloud resources, the main reason proper BGP routing.
 
 
 

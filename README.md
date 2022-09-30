@@ -106,7 +106,7 @@ You need to add following GRE settings:
 
 <p>GRE destination should be Juniper VSRX Private IP 10.75.12.11</p>
 
-<p>GRE subnet 172.16.2.1/30 ( This is overlay subnet which will be used for P2P communication via GRE between VSRX and PowerVS router which is managed by IBM, you can choose any subnet based on your preferences, you will use IP from this subnet for source and Destination of your GRE tunnel)</p>
+<p>GRE subnet 172.16.2.0/29 ( This is overlay subnet which will be used for P2P communication via GRE between VSRX and PowerVS router which is managed by IBM, you can choose any subnet based on your preferences, you will use IP from this subnet for source and Destination of your GRE tunnel)</p>
 
 <p>We will asign following IP's</p>
 <p>PowerVS router IP 172.16.2.5 (if you unable to identify this IP the best option to raise ticket for support and get confirmation about asigned IP)</p>
@@ -274,7 +274,7 @@ set protocols bgp group PowerFra local-as 64880
 set protocols bgp group PowerFra neighbor 172.16.2.5
 set routing-options autonomous-system 64880
 ```
-We need to add policy to advertize prefixes from on-premise to Power VS router
+We need to add policy to advertize prefixes from on-premise to Power VS router in on-premise we have two subnets
 
 ```shell
 set policy-options policy-statement adver-prefix term 1 from route-filter 10.6.22.0/24 exact
@@ -282,12 +282,10 @@ set policy-options policy-statement adver-prefix term 1 from route-filter 10.5.1
 set policy-options policy-statement adver-prefix term 1 then accept
 set policy-options policy-statement adver-prefix term default then reject
 ```
-Then we need to allow BGP protocol in VSRX firewall
+Then we need to allow BGP protocol in VSRX firewall for specific IP's most critical to allow it for overlay subnet 172.16.2.0/29  which is used for GRE tunnel 
 
 ```shell
 set firewall filter PROTECT-IN term BGP from source-address 172.16.2.1/32
-set firewall filter PROTECT-IN term BGP from source-address 10.12.248.2/32
-set firewall filter PROTECT-IN term BGP from source-address 10.12.248.1/32
 set firewall filter PROTECT-IN term BGP from source-address 169.254.0.1/32
 set firewall filter PROTECT-IN term BGP from source-address 192.168.4.56/32
 set firewall filter PROTECT-IN term BGP from source-address 172.16.2.5/32
@@ -295,14 +293,13 @@ set firewall filter PROTECT-IN term BGP from destination-address 169.254.0.1/32
 set firewall filter PROTECT-IN term BGP from destination-address 172.16.2.1/32
 set firewall filter PROTECT-IN term BGP from destination-address 169.254.0.2/32
 set firewall filter PROTECT-IN term BGP from destination-address 10.75.12.11/32
-set firewall filter PROTECT-IN term BGP from destination-address 10.12.248.2/32
 set firewall filter PROTECT-IN term BGP from destination-address 172.16.2.6/32
 set firewall filter PROTECT-IN term BGP from protocol tcp
 set firewall filter PROTECT-IN term BGP from port bgp
 set firewall filter PROTECT-IN term BGP then accept
 ```
 
-We need to add static rotes for underlay network to proper routing traffice via Direct Link connection
+We need to add static rotes for underlay network to proper routing traffice via Direct Link connection to VSRX transit VLAN 10.75.12.1 is GW for Private subnet attached to private VLAN
 
 ```shell
 set routing-options static route 169.254.0.0/16 next-hop 10.75.12.1
@@ -413,7 +410,8 @@ inet6.0              
 Peer                     AS      InPkt     OutPkt    OutQ   Flaps Last Up/Dwn State|#Active/Received/Accepted/Damped...
 172.16.2.5            64999       3172       3217       0       1  1d 0:06:00 Establ
 ```
-If route advertized, you will then able to route this subnets to VPN tunnel
+<p>If route advertized, you will then able to route this subnets to VPN tunnel later</p>
+<p>To see which routes advertised from VSRX you can run followibg command </p> 
 
 ```shell
 show route advertising-protocol bgp 172.16.2.5
@@ -426,22 +424,25 @@ inet.0: 18 destinations, 18 routes (17 active, 0 holddown, 1 hidden)
 * 10.5.11.0/24            Self                                    I
 * 10.6.22.0/24            Self                                    I
 ```
+We see that both routes successfully advertized to PowerVS Router
+
 <p>Regarding troubleshooting</p>
 <p>You will not able to ping from PowerVS you VSRX private IP because it is underlay network for your GRE tunnel</p>
 <p>anyway you can run ping on the Power VS instance and see how icmp flow to VPN interface when it will be configured later</p>
-You can do it with following command on the VSRX
+<p>You can do it with following command on the VSRX, to do so you need to provision at least one PowerVM in your PowerVS service instance, logon into this Vm via console and run ping some IP from the on-premise network range, for example 10.5.11.1</p> 
 
  ```shell
  run show security flow session protocol icmp
  ```
 
 <b> 6 Step </b>
-We need to establish VPN to on premise and route traffic from GRE to VPN interface st.0 
-I will cover only configuration on the IBM Cloud side, on-premise configuration will be the same and only difference from specific device which used in the organization.
+We need to establish VPN to on premise and route traffic from GRE to VPN interface st0.0 
+<p>I will cover only configuration on the IBM Cloud side, on-premise configuration will be the same and only difference from specific device which used in the your organization.</p>
 
-the VSRX Public IP:  161.32.44.198 
-the on-premise VPN GE IP: 182.11.38.1
-you need to replace pre-shared key "XXXXXXXXXXXXXXXX" to yours
+<p>the VSRX Public IP:  161.32.44.198</p>
+<p>the on-premise VPN GW IP: 182.11.38.1</p>
+<p>you need to replace pre-shared key "XXXXXXXXXXXXXXXX" to yours </p>
+<p>If you prefer another dh-group and lifetime parameters you can change it as well</p>
 
 ```shell
 set security ike proposal VPN-DR-IBM authentication-method pre-shared-keys
@@ -531,7 +532,8 @@ ike {
     }
 
 ```
-Also we need to allow security zones from and to VPN 
+Also we need to allow trafic between security zones from and to VPN
+
 ```shell
 set security address-book global address net_10.6.22.0 10.6.22.0/24
 set security address-book global address NET_10.75.12.0 10.75.12.0/26
@@ -562,7 +564,8 @@ set security policies from-zone POWER to-zone vpn policy PowerGRE-to-DR then per
 set security zones security-zone vpn description DR-NET
 set security zones security-zone vpn interfaces st0.0
 ```
-You need to allow ICMP for troubleshooting purposes below configuration which I used in my case
+You need to allow ICMP for troubleshooting purposes, below configuration which I used in my case
+
 ```shell
 set firewall filter PROTECT-IN term IKE from source-address 182.11.38.1/32
 set firewall filter PROTECT-IN term IKE from destination-address 161.32.44.198/32
@@ -600,7 +603,8 @@ set firewall filter PROTECT-IN term PING from destination-address 10.5.11.0/24
 set firewall filter PROTECT-IN term PING from protocol icmp
 set firewall filter PROTECT-IN term PING then accept
 ```
-Finally we need to add route from PowerVS private network to VPN interface
+Finally we need to add route from PowerVS private network to VPN st0.0 interface
+
 ```shell
   set routing-options static route 10.5.11.0/24 next-hop st0.0
   set routing-options static route 10.6.22.0/24 next-hop st0.0
@@ -806,14 +810,16 @@ filter PROTECT-IN {
         route 10.5.11.0/24 next-hop st0.0;
     }
 ```
-Then you need to repeat necessary steps on the on-premise VPN GW device.
+<p>Then you need to repeat necessary steps on the on-premise VPN GW device.</p>
+<p>If you have issue you can find some examples in the IBM Cloud Documentation here: https://cloud.ibm.com/docs/vpc?topic=vpc-cisco-asav-config&interface=ui </p>
 
-<p> You can find here end to end configuration for scenario described above:</p>
+<p> You can find here end to end configuration for the scenario described above:</p>
 
 https://github.com/notras/PowerVSConnectivity/blob/main/gateway-vsrx-vSRXfullexample.conf
 
 
-<p>Very useful guide from my coleague Chris. This scenario use TGW in advance and Direct link for connect on-premise infrastructure:</p>
+<b>Additional information:</b>
+<p>Very useful guide from my coleague Chris. This scenario use TGW in advance and Direct link for connect to on-premise infrastructure:</p>
 
 https://cloudguy.ca/2022/03/19/connecting-to-ibm-power-systems-virtual-servers-through-direct-link/
 

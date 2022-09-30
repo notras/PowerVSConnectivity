@@ -117,7 +117,7 @@ VSRX GRE IP 172.16.2.6 ( this IP you can assign yourself from the subnet which y
 
 <p>GRE configuration on the VSRX</p>
 <p>You can choose how to configure VSRX via GUI or via ssh:</p>
-Via gui you can connect to private or public VSRX IP from GW configuration page: 
+<p>Via gui you can connect to private or public VSRX IP from GW configuration page:</p> 
 <p>in our case link will be https://10.75.12.11:8443</p>
 <p>To connect via Private IP you need to allow VPN access for your user and enable Motion Pro client VPN.</p> 
 <p>Additional details here (https://cloud.ibm.com/docs/iaas-vpn?topic=iaas-vpn-standalone-vpn-clients#macos-standalone-client)</p>
@@ -125,7 +125,7 @@ Via gui you can connect to private or public VSRX IP from GW configuration page:
 <p>First off all you need to create gre tunnel with following parameters:</p>
 <p>Source IP 10.75.12.11 (VSRX private IP)</p>
 <p>Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connection for Cloud Connection we defined 172.16.2.0/30 subnet)</p>
-<p>GRE interface IP address on VSRX 172.16.2.6/30</p> ( You can assign yourselves IP from the same subnet )</p>
+<p>GRE interface IP address on VSRX 172.16.2.6/30</p> ( You can assign yourselves available IP from this subnet )</p>
 <p>Below necessary commands to create GRE tunnel on VSRX</p>
 
 ```shell
@@ -134,7 +134,7 @@ set interfaces gr-0/0/0 unit 0 tunnel destination 172.16.2.1
 set interfaces gr-0/0/0 unit 0 family inet mtu 1400
 set interfaces gr-0/0/0 unit 0 family inet address 172.16.2.6/30
 ```
-Respective configuration in gui would be:
+Respective configuration in other notation would be:
 ```
     }
     gr-0/0/0 {
@@ -151,7 +151,7 @@ Respective configuration in gui would be:
     }
 ```
 
-<p>next you need to allow security zones, because this traffic flow via private network we allow all, but you can permit only explicit subnets etc if you need for security reason. We allow traffic between Power Zone which is belong to gre interface and allow to traverse traffic to IBM Cloud Classic which is SL-PRIVATE zone by default in IBM Cloud, also for troubleshooting allowed embedded zone junos-host to allow ping from local VSRX interfaces.</p>
+<p>next you need to allow security zones, because this traffic flow via private network we will allow all, but you can permit only explicit subnets etc if you need for security reason. We allow traffic between Power Zone which is belong to gre interface and allow to traverse traffic to IBM Cloud Classic which is SL-PRIVATE zone by default in IBM Cloud, also for troubleshooting allowed embedded zone junos-host to allow ping from loopback VSRX interfaces.</p>
 
 
 ```shell
@@ -179,7 +179,7 @@ set security policies from-zone junos-host to-zone POWER policy allow-ping-to-po
 set security policies from-zone junos-host to-zone POWER policy allow-ping-to-power then permit
 ```
 
-In gui it will looks following:
+In other notation it will looks following:
 
 ```
 from-zone SL-PRIVATE to-zone POWER {
@@ -261,11 +261,9 @@ from-zone SL-PRIVATE to-zone POWER {
 Now we need to configure BGP
 <p>The BGP neighbor the same IP which is used for GRE destination on the Power VS router end which is: 172.16.2.5</p>
 <p>The Power VS ASN 64999</p>
-<p>VSRX ASN 64880</p>
+<p>For VSRX ASN 64880</p>
 
 ```shell
-set protocols bgp group tunGRE local-as 64880
-set protocols bgp group tunGRE neighbor 10.12.248.1
 set protocols bgp group PowerFra type external
 set protocols bgp group PowerFra local-address 172.16.2.6
 set protocols bgp group PowerFra family inet unicast

@@ -1,22 +1,22 @@
 # PowerVSConnectivity from on-premise via VPN
-  <b>Establish connectivity on-premise to PowerVS via IBM Cloud Classic VSRX Gateway</b>
+  <b>Establishing connectivity from on-premise to PowerVS via IBM Cloud Classic VSRX Gateway</b>
 
 We will realize follwing scenario described in IBM Cloud Documentation
 (https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-network-architecture-diagrams#network-reference-architecture-privateipsec)
-This is very common scenario and it can be used like general guide for connectivity with IBM Cloud via Ipsec VPN using Juniper VSRX Gateway Appliance.
-In many situations need Private connectivity from on-Premise environment to Cloud Resources, less expensive option is VPN.
+This is very common scenario and it could be useful like general guide for connectivity with IBM Cloud via Ipsec VPN using Juniper VSRX Gateway Appliance in advance to IBM Cloud documentaion.
+In many situations need Private connectivity from on-Premise environment to Cloud Resources, the ess expensive option is VPN.
 IBM cloud have different zones like modern MZR, classic infrastructure and Power VS colo.
-From network perspective need additional actions to interconnect it from one to each other, which is possible via Transit Gateway (TGW) and via Gateway appliance deployed in Classic infrastructure. 
+From network perspective need additional actions to interconnect this services inside IBM Cloud from one to each other, which is possible via Transit Gateway (TGW) and via Gateway appliance deployed in Classic infrastructure. 
 
-In our cases, main objective was to establish bi-directional connectivity from client on-premise location to PowerVS colo.
-It is possible via two options 
+In our case the main objective was to establish bi-directional VPN connectivity from client on-premise location to PowerVS colo.
+It is possible at least via two options 
  1. On-Premise GW -VPN GW in VPC + TGW via GRE to PowerVS cloud connection 
  2. On-Premise GW - GW appliance + GRE via Power VS cloud connection
  
 <strong>Option 1</strong>
 <p>limitations:</p>
 
-   1. Need to enable NAT-T on on-premise Gatewey because it is actual limitation of VPC VPN GW
+   1. Need to enable NAT-T on on-premise Gateway because it is actual limitation of VPC VPN GW (https://cloud.ibm.com/docs/vpc?topic=vpc-vpn-limitations)
    2. Not full control of VPN tunnel from log perspective and necessary settings
  
  <p>benefits:</p>
@@ -27,14 +27,17 @@ It is possible via two options
 <strong>Option 2</strong> 
 limitations:
  1. Need to order and setup GW appliance
- 2. Need to manage it after provisioning
+ 2. Need to manage GW after provisioning
  3. extra cost
 
 <p>benefits:</p>
 
  1. Full control of FW policies and routing
+ 2. Ability to use the same GW for control all connections inside IBM Cloud
+ 3. Higher throughtput up to 10Gbps
  
 <p>Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)</p>
+The overall architecture described below on the diagram, we have on-premise site with two private /24 subnets which is should be advertized to IBM Cloud Power VS systems, in IBM cloud we will deploy several PowerVS VM's in one Private subnet 10.2.2.0/24 with AIX which is suitable for example to hosting Oracle DB, SAP HANA deployments. IT team from on-premise should able to manage SW stack installed on this VM's and perform replication with on-premise systems for DR purposes with ability to failover users from on-premise backend systems to systems deployed in IBM Cloud via the same VPN.
   
 ![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawiov2.png)
 
@@ -48,12 +51,12 @@ limitations:
 
 <b>1 step</b>
 Create Power VS service insrtance
-https://cloud.ibm.com/catalog/services/power-systems-virtual-server
+https://cloud.ibm.com/catalog/services/power-systems-virtual-server it is just shell for your Power infrastrucuture in specific cloud DC location. Creation of service instance will not produce any cost.
 
 ![Creating PowerVS instance](https://github.com/notras/PowerVSConnectivity/blob/main/powerVSinstanceceration.png)
 
 <b>2 step </b>
-Create subnets inside PowerVS service instance, the main reason, it should exist before you order Direct Link 2.0 connection from PowerVS colo to the rest IBM cloud resources, the main reason proper BGP routing.
+Create subnets inside PowerVS service instance, the main reason, it should exist before you order Direct Link 2.0 connection from PowerVS colo to the rest IBM cloud resources, the main reason proper BGP routing. We created one subnet 10.2.2.0/24
 
 ![Creating Private Network](https://github.com/notras/PowerVSConnectivity/blob/main/PrivateNWcreation.png)
 
@@ -61,55 +64,64 @@ Create subnets inside PowerVS service instance, the main reason, it should exist
 We need to order direct link which will connect PowerVS with IBM Cloud services and attach previously created subnet 10.2.2.0/24 or several subnets to the Cloud Connection. 
 <p>IBM provide free of charge option for interconnection between PowerVS Colo and rest of the IBM Cloud services.</p>
 By default PowerVS ASN 64999 and local IBM Cloud ANS 13884, you can find this details in Interconnectivity section:
-https://cloud.ibm.com/interconnectivity when your link will be provisioned.
+https://cloud.ibm.com/interconnectivity when your link will be provisioned. You can also change BGP parameters if it is necessary after connection have been created
 
 ![Creating Direct Link PowerVS to IBM Cloud](https://github.com/notras/PowerVSConnectivity/blob/main/DirectLinkPower.png)
+
+<p>Cloud Connection creation is fully automated you will see green status when it will be completed successfully.</p>
+
 <b> 3 Step </b> 
-Provisioning GW appliance https://cloud.ibm.com/gen1/infrastructure/provision/gateway
+Provisioning of GW appliance https://cloud.ibm.com/gen1/infrastructure/provision/gateway
 You can choose bandwidth, specific version based on your needs, better to deploy this GW in the same Cloud location where PowerVS located, but if you enabled global routing for Direct link it is not mandatory.
 <p>You can provision single GW or HA pair depending from your requirements</p>
-<p>In this scenario I will use single GW apliance:</p>
+<p>In this scenario we will use single GW apliance:</p>
 
 ![GW Appliance provisioning](https://github.com/notras/PowerVSConnectivity/blob/main/GWprovisioning.png)
 
 Provisioning took up to four hours.
+
 When GW ready, you will receive email, or you can check it in the portal here: https://cloud.ibm.com/netsec/gateway-appliances
 You will see following details (I was replaced real IP's for security reasons)
+
 ![GW Appliance settings](https://github.com/notras/PowerVSConnectivity/blob/main/VSRXConfigv1.png)
 
-You need to record VSRX private IP and Public IP, you will use it for configuration purposes in our case:
+You need to record VSRX private IP and Public IP, you will use it for configuration purposes in our case this parameteres are following:
 <p> Private IP 10.75.12.11 </p>
 <p> Public IP 161.32.44.198 </p>
 
 <b> 4 Step </b>
-You have choice to establish VPN from on premise to GW appliance or to establish GRE via Cloud Connection, the results will be the same. We will establish GRE firstly.
+You have choice to establish VPN from on premise to GW appliance or to establish GRE via Cloud Connection, the final results will be the same. We will establish GRE firstly.
 <p>We have cloud connection in established state it is point to point connectivity.</p>
-<p>IBM usually allocate 169.254.0.1/30 on PowerVS router side and 169.254.0.2/30 on the opposite side of IBM Cloud which is all other IBM Cloud Services.</p>
+<p>IBM usually allocate 169.254.0.1/30 on PowerVS router side and 169.254.0.2/30 on the opposite side of IBM Cloud.</p>
 
 ![Cloud Connection](https://github.com/notras/PowerVSConnectivity/blob/main/CloudConnectionSettings.png)
-In the virtual connection section you can manage which services will be connected, you can connect only Classic where Juniper provisioned or you can also attach VPC.
+In the virtual connection section you can manage which services will be connected, you can connect only Classic where Juniper provisioned or you can also attach VPC. For our scenario VPC connectivity not necessary. 
 
-<p>You need to enable GRE</p>
+<p> In the virtuall connection settings you need to enable GRE like described  on the screenshot below</p>
 
 ![Virtual connection](https://github.com/notras/PowerVSConnectivity/blob/main/virtualconnectionSettings.png)
-And add following GRE settings:
+You need to add following GRE settings:
 
 ![GRE settings](https://github.com/notras/PowerVSConnectivity/blob/main/GREsettings.png)
 
 <p>GRE destination should be Juniper VSRX Private IP 10.75.12.11</p>
 
 <p>GRE subnet 172.16.2.1/30 ( This is overlay subnet which will be used for P2P communication via GRE between VSRX and PowerVS router which is managed by IBM, you can choose any subnet based on your preferences, you will use IP from this subnet for source and Destination of your GRE tunnel)</p>
-We will asign following IP's
+
+<p>We will asign following IP's</p>
 <p>PowerVS router IP 172.16.2.5 (if you unable to identify this IP the best option to raise ticket for support and get confirmation about asigned IP)</p>
 VSRX GRE IP 172.16.2.6 ( this IP you can assign yourself from the subnet which you selected for GRE)
 <p>When you finished configuration on the Cloud connection side, you need to configure VSRX as well.</p>
+
 <b> 5 Step </b>
+
 <p>GRE configuration on the VSRX</p>
 <p>You can choose how to configure VSRX via GUI or via ssh:</p>
 Via gui you can connect to private or public VSRX IP from GW configuration page: 
-<p>in our case it will be https://10.75.12.11:8443</p>
-<p>To connect via Private IP you need to allow VPN access for your user and enable Motion Pro client VPN. additional details here (https://cloud.ibm.com/docs/iaas-vpn?topic=iaas-vpn-standalone-vpn-clients#macos-standalone-client)</p>
-<p>We will connect via ssh instead with credentials available on the VSRX configuration page</p>
+<p>in our case link will be https://10.75.12.11:8443</p>
+<p>To connect via Private IP you need to allow VPN access for your user and enable Motion Pro client VPN.</p> 
+<p>Additional details here (https://cloud.ibm.com/docs/iaas-vpn?topic=iaas-vpn-standalone-vpn-clients#macos-standalone-client)</p>
+<p>We will connect via ssh instead, with credentials available on the VSRX configuration page</p>
 <p>First off all you need to create gre tunnel with following parameters:</p>
 <p>Source IP 10.75.12.11 (VSRX private IP)</p>
 <p>Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connection for Cloud Connection we defined 172.16.2.0/30 subnet)</p>

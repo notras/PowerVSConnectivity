@@ -125,8 +125,8 @@ Via gui you can connect to private or public VSRX IP from GW configuration page:
 <p>First off all you need to create gre tunnel with following parameters:</p>
 <p>Source IP 10.75.12.11 (VSRX private IP)</p>
 <p>Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connection for Cloud Connection we defined 172.16.2.0/30 subnet)</p>
-<p>GRE interface IP address on VSRX 172.16.2.6/30</p>
-Below necessary commands to create GRE tunnel on VSRX
+<p>GRE interface IP address on VSRX 172.16.2.6/30</p> ( You can assign yourselves IP from the same subnet )</p>
+<p>Below necessary commands to create GRE tunnel on VSRX</p>
 
 ```shell
 set interfaces gr-0/0/0 unit 0 tunnel source 10.75.12.11

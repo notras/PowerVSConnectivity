@@ -37,7 +37,7 @@ limitations:
  3. Higher throughtput up to 10Gbps
  
 <p>Preffered option in our case was Option - 2 (more flexibility in configuration, ability to use GW appliance like central router and firewall between all services deployed on IBM Cloud Account)</p>
-The overall architecture described below on the diagram, we have on-premise site with two private /24 subnets which is should be advertized to IBM Cloud Power VS systems, in IBM cloud we will deploy several PowerVS VM's in one Private subnet 10.2.2.0/24 with AIX which is suitable for example to hosting Oracle DB, SAP HANA deployments. IT team from on-premise should able to manage SW stack installed on this VM's and perform replication with on-premise systems for DR purposes with ability to failover users from on-premise backend systems to systems deployed in IBM Cloud via the same VPN.
+The overall architecture described below on the diagram, we have on-premise site with two private /24 subnets which is should be advertized to IBM Cloud Power VS systems, in IBM cloud we will deploy several PowerVS VM's in one Private subnet 10.2.2.0/24 with AIX which is suitable for example to hosting Oracle DB, SAP HANA, WAS, Message Broker and many others enterprise SW. IT team from on-premise should able to manage SW stack installed on this VM's and perform replication with on-premise systems for DR purposes with ability to failover users from on-premise backend systems to systems deployed in IBM Cloud via the same VPN.
   
 ![PowerVS-to-on-Premise-Architecture](https://github.com/notras/PowerVSConnectivity/blob/main/GREIpsecPowerVS-GRE.drawiov2.png)
 

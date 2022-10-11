@@ -154,10 +154,10 @@ you will get following details:
 
 ```shell
 nosen-as-MacBook-Pro:~ $ ibmcloud pi con 0ff4ce2b-3c2d-dds1-b3e0-5d0f4cdsdsds
-Getting details of cloud connection 0ff4cdsdb-3c2d-4841-b3e0-5d0f4cdsdsd6 under account IBM xxxx...
+Getting details of cloud connection 0ff4ce2b-3c2d-dds1-b3e0-5d0f4cdsdsds under account IBM xxxx...
                      
 
-ID                0xxxxxx-3c2d-4841-b3e0-5dxxxxx9b6   
+ID                0ff4ce2b-3c2d-dds1-b3e0-5d0f4cdsdsds   
 Name              vpcconnfra1   
 Link Status       established   
 Speed             5000   

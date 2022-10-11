@@ -107,10 +107,11 @@ You need to add following GRE settings:
 <p>GRE destination should be Juniper VSRX Private IP 10.75.12.11</p>
 
 <p>GRE subnet 172.16.2.0/29 ( This is overlay subnet which will be used for P2P communication via GRE between VSRX and PowerVS router which is managed by IBM, you can choose any subnet based on your preferences, you will use IP from this subnet for source and Destination of your GRE tunnel)</p>
-
+<p>In the IBM Cloud docs provided following recommendations https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-cloud-connections#gre-configuration-example</p>
 <p>We will asign following IP's</p>
-<p>PowerVS router IP 172.16.2.5 (if you unable to identify this IP the best option to raise ticket for support and get confirmation about asigned IP)</p>
-VSRX GRE IP 172.16.2.6 ( this IP you can assign yourself from the subnet which you selected for GRE)
+<p>PowerVS router IP 172.16.2.5 (this IP not visible in UI for your cloud connection and you can not retrieve it via "ibmcloud pi con conID" for now the best option to raise ticket to IBM Cloud support and get confirmation about asigned IP from GRE subnet)</p>
+<p>VSRX GRE IP 172.16.2.6 ( this IP you can assign yourself from the subnet which you selected for GRE)</p>
+
 <p>When you finished configuration on the Cloud connection side, you need to configure VSRX as well.</p>
 
 <b> 5 Step </b>

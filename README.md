@@ -109,7 +109,8 @@ You need to add following GRE settings:
 <p>GRE subnet 172.16.2.0/29 ( This is overlay subnet which will be used for P2P communication via GRE between VSRX and PowerVS router which is managed by IBM, you can choose any subnet based on your preferences, you will use IP from this subnet for source and Destination of your GRE tunnel)</p>
 <p>In the IBM Cloud docs provided following recommendations https://cloud.ibm.com/docs/power-iaas?topic=power-iaas-cloud-connections#gre-configuration-example</p>
 <p>We will asign following IP's</p>
-<p>PowerVS router IP 172.16.2.5 (this IP not visible in UI for your cloud connection and you can not retrieve it via "ibmcloud pi con conID" for now the best option to raise ticket to IBM Cloud support and get confirmation about asigned IP from GRE subnet)</p>
+<p>PowerVS router IP 172.16.2.5 (this IP not visible in UI for your cloud connection and you can not retrieve it via "ibmcloud pi con conID" for now the best option to raise ticket to IBM Cloud support and get confirmation about asigned IP from GRE subnet, this IP will be your BGP neighbor)</p>
+
 <p>VSRX GRE IP 172.16.2.6 ( this IP you can assign yourself from the subnet which you selected for GRE)</p>
 
 <p>When you finished configuration on the Cloud connection side, you need to configure VSRX as well.</p>
@@ -125,7 +126,55 @@ You need to add following GRE settings:
 <p>We will connect via ssh instead, with credentials available on the VSRX configuration page</p>
 <p>First off all you need to create gre tunnel with following parameters:</p>
 <p>Source IP 10.75.12.11 (VSRX private IP)</p>
-<p>Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connection for Cloud Connection we defined 172.16.2.0/30 subnet)</p>
+<p> Power VS Destination 172.16.2.1 (GW of overlay subnet which you defined in virtual connection for Cloud Connection we defined 172.16.2.0/30 subnet
+  you can retrive this IP here with following commangs:</p>
+<p>retrieve all Power VS instances on your account </p>
+
+```shell
+
+  ibmcloud ibmcloud pi sl
+``` 
+set target on your Power VS instance which you will connect via GRE
+
+```shell
+  ibmcloud pi st <ID of your Power Service instance>
+```
+ retrieve details about your connections
+
+```shell
+  ibmcloud pi cons 
+```
+retrieve details of your IBMcloud connection
+
+```shell 
+  ibmcloud ibmcloud pi con <ID of your Cloud Connection>
+```         
+
+you will get following details:
+
+```shell
+nosen-as-MacBook-Pro:~ $ ibmcloud pi con 0ff4ce2b-3c2d-dds1-b3e0-5d0f4cdsdsds
+Getting details of cloud connection 0ff4cdsdb-3c2d-4841-b3e0-5d0f4cdsdsd6 under account IBM xxxx...
+                     
+
+ID                0xxxxxx-3c2d-4841-b3e0-5dxxxxx9b6   
+Name              vpcconnfra1   
+Link Status       established   
+Speed             5000   
+Creation Date     xxxx-xx-30T09:46:41.756Z   
+Global Routing    false   
+IBM IPAddress     169.254.0.1/30   
+User IPAddress    169.254.0.2/30   
+Metered           false   
+Connection Mode   direct   
+VPC               true   
+VPCS              Name: xxxxx, ID: crn:v1:bluemix:public:is:eu-de:a/fxxxxxxxxxb23::vpc:r010-4xxxxxxx0-fd4e-48b3-bebc-xxxxxxxx  
+Classic           true   
+GRE Tunnels       DestIPAddress: 10.75.12.11	SourceIPAddress: 172.16.2.1   
+Networks          ID: xzsdfsdfds04-25f1-43e1-9efc-fcccccxxxxx	Name: net01	VlanID: xxx
+```
+the SourceIPAddress is IP which set for source in your GRE configuration
+
 <p>GRE interface IP address on VSRX 172.16.2.6/30</p> ( You can assign yourselves available IP from this subnet )</p>
 <p>Below necessary commands to create GRE tunnel on VSRX</p>
 

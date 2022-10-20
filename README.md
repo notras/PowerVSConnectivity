@@ -394,23 +394,6 @@ policy-options {
 ```
 
 ```
-policy-options {
-    policy-statement adver-prefix {
-        term 1 {
-            from {
-                route-filter 10.6.22.0/24 exact;
-                route-filter 10.5.11.0/24 exact;
-            }
-            then accept;
-        }
-        term default {
-            then reject;
-        }
-    }
-}
-```
-
-```
  }
         term BGP {
             from {

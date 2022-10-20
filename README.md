@@ -19,16 +19,16 @@ It is possible at least via two options
    1. Need to enable NAT-T on on-premise Gateway because it is actual limitation of VPC VPN GW (https://cloud.ibm.com/docs/vpc?topic=vpc-vpn-limitations)
    2. Not full control of VPN tunnel from log perspective and necessary settings
  
- <p>benefits:</p>
- 1. no need to manage
- 2. HA pair out of the box
- 3. low cost
+<p>benefits:</p>
+<p>1. no need to manage</p>
+<p>2. HA pair out of the box</p>
+<p>3. low cost</p>
 
 <strong>Option 2</strong> 
-limitations:
- 1. Need to order and setup GW appliance
- 2. Need to manage GW after provisioning
- 3. extra cost
+<p>limitations:</p>
+<p>1. Need to order and setup GW appliance</p>
+<p>2. Need to manage GW after provisioning</p>
+<p>3. extra cost</p>
 
 <p>benefits:</p>
 
